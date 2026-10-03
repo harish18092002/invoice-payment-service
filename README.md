@@ -446,7 +446,7 @@ crates/invoice-service/   the API (Axum + sqlx)
   src/                    one module per concern: auth, customers, invoices, payments, psp,
                           reconciler, events, webhooks/, idempotency, money, pagination, error
   tests/                  integration tests, they need the running stack
-crates/mock-psp/          the fake payment provider and the webhook sink
+crates/mock-psp/          the fake payment provider and the webhook Insomnia collection for trying the API
 openapi.yaml              API reference
 insomnia.json             Insomnia collection
 docker-compose.yml        Postgres, mock PSP and API
@@ -474,4 +474,3 @@ https://drive.google.com/file/d/1ZZj1qaQ_IIOJJk1rn11bc7nWrcaIw1rX/view?usp=shari
 - [DESIGN.md](DESIGN.md): design decisions and failure modes
 - [AI_USAGE.md](AI_USAGE.md): how AI assistance was used
 - [openapi.yaml](openapi.yaml): the API reference (OpenAPI 3.0)
-- [insomnia.json](insomnia.json): Insomnia collection for trying the API
