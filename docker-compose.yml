@@ -1,0 +1,46 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: invoices
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d invoices"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  mock-psp:
+    build:
+      context: .
+      target: mock-psp
+    environment:
+      PORT: "9000"
+    ports:
+      - "9000:9000"
+
+  app:
+    build:
+      context: .
+      target: invoice-service
+    environment:
+      DATABASE_URL: postgres://app:app@db:5432/invoices
+      PSP_URL: http://mock-psp:9000
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-dev-admin-token}
+      PSP_WAIT_SECS: "5"
+      PSP_TIMEOUT_SECS: "35"
+      WEBHOOK_DELAY_SCALE: ${WEBHOOK_DELAY_SCALE:-1}
+      RECONCILE_INTERVAL_SECS: ${RECONCILE_INTERVAL_SECS:-15}
+      RECONCILE_MIN_AGE_SECS: ${RECONCILE_MIN_AGE_SECS:-45}
+      RECONCILE_NOT_FOUND_AFTER_SECS: ${RECONCILE_NOT_FOUND_AFTER_SECS:-120}
+      # TEST ONLY: "true" makes the app exit right after the PSP answers, to demo crash recovery.
+      # Never set this in a real deployment.
+      CRASH_AFTER_PSP_CALL: ${CRASH_AFTER_PSP_CALL:-false}
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      mock-psp:
+        condition: service_started

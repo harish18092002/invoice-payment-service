@@ -1,0 +1,6 @@
+# private reference notes, never committed
+docs/pattern-map.md
+
+# build output and local env
+/target
+.env

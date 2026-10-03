@@ -1,0 +1,1 @@
+# Defaults only; kept explicit so `cargo fmt` behaviour never changes silently.

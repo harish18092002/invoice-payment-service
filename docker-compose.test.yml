@@ -1,0 +1,18 @@
+# Test overrides: short timings so the integration tests run in seconds.
+# Use together with the main file:
+#   docker compose -f docker-compose.yml -f docker-compose.test.yml up --build -d
+services:
+  mock-psp:
+    environment:
+      MOCK_PSP_SLOW_SECS: "4" # tok_timeout takes 4 s instead of 30 s
+      MOCK_PSP_LATE_SECS: "7" # tok_late lands at the PSP after 7 s instead of 40 s
+  app:
+    environment:
+      PSP_WAIT_SECS: "1" # the pay handler answers 202 after 1 s
+      PSP_TIMEOUT_SECS: "5" # the app gives up on a PSP call after 5 s: longer than tok_timeout (4 s), shorter than tok_late (7 s)
+      RECONCILE_INTERVAL_SECS: "1"
+      RECONCILE_MIN_AGE_SECS: "2"
+      RECONCILE_NOT_FOUND_AFTER_SECS: "10"
+      WEBHOOK_POLL_MS: "200"
+      WEBHOOK_DELAY_SCALE: "0.01"
+      CRASH_AFTER_PSP_CALL: "false"

@@ -1,0 +1,8 @@
+[workspace]
+resolver = "2"
+members = ["crates/invoice-service", "crates/mock-psp"]
+
+[workspace.package]
+edition = "2024"
+version = "0.1.0"
+publish = false
