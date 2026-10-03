@@ -142,15 +142,15 @@ curl -s -w '\nHTTP %{http_code}\n' -X POST localhost:8080/v1/invoices/$INVOICE_I
 
 ### What `/pay` can answer
 
-| status | meaning |
-|---|---|
-| `200` | paid; the body has `invoice` and `payment_attempt` |
-| `202` | outcome not known yet (slow provider); the attempt is `pending`. Repeat the request with the same key, or read the invoice, to see the result |
-| `402` | declined; `error.code` is the provider's reason. The invoice stays `open`: pay again with a **new** key |
-| `502` | the provider could not be reached and holds no record of the charge (`psp_unavailable`). The invoice stays `open` |
-| `409` | `invoice_not_payable` (the invoice is not `open`) or `payment_in_progress` (another attempt is pending) |
-| `422` | `idempotency_key_reuse` |
-| `400` | missing or invalid `Idempotency-Key` header or body |
+| status | meaning                                                                                                                                       |
+| ------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `200`  | paid; the body has `invoice` and `payment_attempt`                                                                                            |
+| `202`  | outcome not known yet (slow provider); the attempt is `pending`. Repeat the request with the same key, or read the invoice, to see the result |
+| `402`  | declined; `error.code` is the provider's reason. The invoice stays `open`: pay again with a **new** key                                       |
+| `502`  | the provider could not be reached and holds no record of the charge (`psp_unavailable`). The invoice stays `open`                             |
+| `409`  | `invoice_not_payable` (the invoice is not `open`) or `payment_in_progress` (another attempt is pending)                                       |
+| `422`  | `idempotency_key_reuse`                                                                                                                       |
+| `400`  | missing or invalid `Idempotency-Key` header or body                                                                                           |
 
 Keys are per business, never expire, and a replay returns the stored answer, including a 402. A key is
 remembered once a payment attempt exists: a request refused before that (400, 404 or 409) is not stored,
@@ -158,15 +158,15 @@ so the same key can be used again after fixing the problem.
 
 ### Mock PSP tokens
 
-| token | behaviour |
-|---|---|
-| `tok_success` | succeeds after about 100 ms |
-| `tok_insufficient_funds` | fails with `insufficient_funds` |
-| `tok_card_declined` | fails with `card_declined` |
-| `tok_timeout` | takes 30 s; the API answers `202` after 5 s and the invoice is paid when the PSP finishes |
-| `tok_network_error` | the PSP answers 500 and records nothing; the API answers `502 psp_unavailable` |
-| `tok_late` | a request still on its way: the PSP knows nothing about it for 40 s (a lookup says 404), then the charge lands and succeeds. The API gives up after 35 s but must not conclude "no charge"; the reconciler records the late success. |
-| any other token | the PSP answers 400; the API answers `402 psp_rejected` |
+| token                    | behaviour                                                                                                                                                                                                                            |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `tok_success`            | succeeds after about 100 ms                                                                                                                                                                                                          |
+| `tok_insufficient_funds` | fails with `insufficient_funds`                                                                                                                                                                                                      |
+| `tok_card_declined`      | fails with `card_declined`                                                                                                                                                                                                           |
+| `tok_timeout`            | takes 30 s; the API answers `202` after 5 s and the invoice is paid when the PSP finishes                                                                                                                                            |
+| `tok_network_error`      | the PSP answers 500 and records nothing; the API answers `502 psp_unavailable`                                                                                                                                                       |
+| `tok_late`               | a request still on its way: the PSP knows nothing about it for 40 s (a lookup says 404), then the charge lands and succeeds. The API gives up after 35 s but must not conclude "no charge"; the reconciler records the late success. |
+| any other token          | the PSP answers 400; the API answers `402 psp_rejected`                                                                                                                                                                              |
 
 `GET localhost:9000/_test/stats` shows how many charges the mock has seen. The mock keeps its state in
 memory, so restarting it forgets every charge.
@@ -321,23 +321,23 @@ The full reference is [openapi.yaml](openapi.yaml) (OpenAPI 3.0). `insomnia.json
 collection with a request for every endpoint and for the mock PSP: import it and run "Create business +
 first API key" first.
 
-| endpoint | what it does |
-|---|---|
-| `GET /health` | liveness, no authentication |
-| `POST /admin/businesses` | create a business and its first API key (`X-Admin-Token` header) |
-| `GET`, `POST /v1/api_keys` | list keys, create another key |
-| `DELETE /v1/api_keys/{id}` | revoke a key |
-| `GET`, `POST /v1/customers` | list (paginated), create |
-| `GET /v1/customers/{id}` | fetch one |
-| `GET`, `POST /v1/invoices` | list (paginated, optional `?state=`), create a draft |
-| `GET /v1/invoices/{id}` | fetch one with its line items |
-| `POST /v1/invoices/{id}/finalize` | `draft` to `open` |
-| `POST /v1/invoices/{id}/void` | `draft`, `open` or `uncollectible` to `void` |
-| `POST /v1/invoices/{id}/mark_uncollectible` | `open` to `uncollectible` |
-| `POST /v1/invoices/{id}/pay` | pay an `open` invoice (needs `Idempotency-Key`) |
-| `GET /v1/invoices/{id}/payment_attempts` | every attempt for the invoice, oldest first |
-| `GET`, `POST /v1/webhook_endpoints` | list endpoints, register one |
-| `GET /v1/events` | the event log, oldest first (`?after=<event id>&limit=`) |
+| endpoint                                    | what it does                                                     |
+| ------------------------------------------- | ---------------------------------------------------------------- |
+| `GET /health`                               | liveness, no authentication                                      |
+| `POST /admin/businesses`                    | create a business and its first API key (`X-Admin-Token` header) |
+| `GET`, `POST /v1/api_keys`                  | list keys, create another key                                    |
+| `DELETE /v1/api_keys/{id}`                  | revoke a key                                                     |
+| `GET`, `POST /v1/customers`                 | list (paginated), create                                         |
+| `GET /v1/customers/{id}`                    | fetch one                                                        |
+| `GET`, `POST /v1/invoices`                  | list (paginated, optional `?state=`), create a draft             |
+| `GET /v1/invoices/{id}`                     | fetch one with its line items                                    |
+| `POST /v1/invoices/{id}/finalize`           | `draft` to `open`                                                |
+| `POST /v1/invoices/{id}/void`               | `draft`, `open` or `uncollectible` to `void`                     |
+| `POST /v1/invoices/{id}/mark_uncollectible` | `open` to `uncollectible`                                        |
+| `POST /v1/invoices/{id}/pay`                | pay an `open` invoice (needs `Idempotency-Key`)                  |
+| `GET /v1/invoices/{id}/payment_attempts`    | every attempt for the invoice, oldest first                      |
+| `GET`, `POST /v1/webhook_endpoints`         | list endpoints, register one                                     |
+| `GET /v1/events`                            | the event log, oldest first (`?after=<event id>&limit=`)         |
 
 Conventions:
 
@@ -352,16 +352,16 @@ Conventions:
 - **Errors.** One envelope everywhere, for example
   `{"error":{"code":"card_declined","message":"the payment was declined","request_id":"...","type":"payment_error"}}`:
 
-| status | `error.type` | `error.code` |
-|---|---|---|
-| 400 | `invalid_request_error` | `invalid_request` |
-| 401 | `authentication_error` | `unauthorized` |
-| 402 | `payment_error` | the provider's reason: `card_declined`, `insufficient_funds`, `psp_rejected`, `psp_declined` |
-| 404 | `not_found_error` | `not_found` |
-| 409 | `conflict_error` | `invalid_state_transition`, `invoice_not_payable`, `payment_in_progress` |
-| 422 | `unprocessable_error` | `idempotency_key_reuse`, `invalid_line_items`, `amount_out_of_range`, `invalid_total`, `amount_overflow` |
-| 500 | `internal_error` | `internal` (the cause is logged, never returned) |
-| 502 | `psp_error` | `psp_unavailable` |
+| status | `error.type`            | `error.code`                                                                                             |
+| ------ | ----------------------- | -------------------------------------------------------------------------------------------------------- |
+| 400    | `invalid_request_error` | `invalid_request`                                                                                        |
+| 401    | `authentication_error`  | `unauthorized`                                                                                           |
+| 402    | `payment_error`         | the provider's reason: `card_declined`, `insufficient_funds`, `psp_rejected`, `psp_declined`             |
+| 404    | `not_found_error`       | `not_found`                                                                                              |
+| 409    | `conflict_error`        | `invalid_state_transition`, `invoice_not_payable`, `payment_in_progress`                                 |
+| 422    | `unprocessable_error`   | `idempotency_key_reuse`, `invalid_line_items`, `amount_out_of_range`, `invalid_total`, `amount_overflow` |
+| 500    | `internal_error`        | `internal` (the cause is logged, never returned)                                                         |
+| 502    | `psp_error`             | `psp_unavailable`                                                                                        |
 
 `amount_overflow` is a safety net behind the range limits: with the current limits the largest possible
 total still fits in an `i64`, so the range checks reject first.
@@ -408,20 +408,20 @@ Formatting and lint checks: `cargo fmt --check` and `cargo clippy --workspace --
 
 API (`invoice-service`):
 
-| variable | default | meaning |
-|---|---|---|
-| `DATABASE_URL` | required | Postgres connection string |
-| `PSP_URL` | required | base URL of the payment provider (`http://` only, see Known limitations) |
-| `ADMIN_TOKEN` | required | value of the `X-Admin-Token` header for `/admin/businesses` |
-| `PSP_WAIT_SECS` | 5 | how long `/pay` waits for the provider before answering 202 |
-| `PSP_TIMEOUT_SECS` | 35 | deadline for one provider call |
-| `RECONCILE_INTERVAL_SECS` | 15 | how often stuck payment attempts are looked at |
-| `RECONCILE_MIN_AGE_SECS` | 45 | minimum age of a pending attempt before it is reconciled |
-| `RECONCILE_NOT_FOUND_AFTER_SECS` | 120 | age after which "provider has no record" counts as failed |
-| `WEBHOOK_POLL_MS` | 1000 | how often the webhook dispatcher looks for due deliveries |
-| `WEBHOOK_DELAY_SCALE` | 1 | multiplies webhook retry delays (tests use 0.01) |
-| `CRASH_AFTER_PSP_CALL` | false | **test only**: exit after the provider answers, to demo crash recovery |
-| `RUST_LOG` | info | log level, for example `debug` |
+| variable                         | default  | meaning                                                                  |
+| -------------------------------- | -------- | ------------------------------------------------------------------------ |
+| `DATABASE_URL`                   | required | Postgres connection string                                               |
+| `PSP_URL`                        | required | base URL of the payment provider (`http://` only, see Known limitations) |
+| `ADMIN_TOKEN`                    | required | value of the `X-Admin-Token` header for `/admin/businesses`              |
+| `PSP_WAIT_SECS`                  | 5        | how long `/pay` waits for the provider before answering 202              |
+| `PSP_TIMEOUT_SECS`               | 35       | deadline for one provider call                                           |
+| `RECONCILE_INTERVAL_SECS`        | 15       | how often stuck payment attempts are looked at                           |
+| `RECONCILE_MIN_AGE_SECS`         | 45       | minimum age of a pending attempt before it is reconciled                 |
+| `RECONCILE_NOT_FOUND_AFTER_SECS` | 120      | age after which "provider has no record" counts as failed                |
+| `WEBHOOK_POLL_MS`                | 1000     | how often the webhook dispatcher looks for due deliveries                |
+| `WEBHOOK_DELAY_SCALE`            | 1        | multiplies webhook retry delays (tests use 0.01)                         |
+| `CRASH_AFTER_PSP_CALL`           | false    | **test only**: exit after the provider answers, to demo crash recovery   |
+| `RUST_LOG`                       | info     | log level, for example `debug`                                           |
 
 The API always listens on port 8080. `docker-compose.yml` takes `ADMIN_TOKEN`, `WEBHOOK_DELAY_SCALE`,
 `RECONCILE_INTERVAL_SECS`, `RECONCILE_MIN_AGE_SECS`, `RECONCILE_NOT_FOUND_AFTER_SECS` and
@@ -431,12 +431,12 @@ to change them.
 
 Mock PSP (`mock-psp`):
 
-| variable | default | meaning |
-|---|---|---|
-| `PORT` | 9000 | port to listen on |
-| `MOCK_PSP_FAST_MS` | 100 | delay of `tok_success`, `tok_card_declined` and `tok_insufficient_funds` |
-| `MOCK_PSP_SLOW_SECS` | 30 | delay of `tok_timeout` (the test override sets 4) |
-| `MOCK_PSP_LATE_SECS` | 40 | how long `tok_late` stays unknown to the mock before the charge lands (the test override sets 7) |
+| variable             | default | meaning                                                                                          |
+| -------------------- | ------- | ------------------------------------------------------------------------------------------------ |
+| `PORT`               | 9000    | port to listen on                                                                                |
+| `MOCK_PSP_FAST_MS`   | 100     | delay of `tok_success`, `tok_card_declined` and `tok_insufficient_funds`                         |
+| `MOCK_PSP_SLOW_SECS` | 30      | delay of `tok_timeout` (the test override sets 4)                                                |
+| `MOCK_PSP_LATE_SECS` | 40      | how long `tok_late` stays unknown to the mock before the charge lands (the test override sets 7) |
 
 ## Project layout
 
@@ -467,7 +467,7 @@ docker-compose.test.yml   short timings for the integration tests
 
 ## Demo Video
 
-https://drive.google.com/file/d/1ekV4LIRWNdnPaxzPqY8Z2BDt9gm-1zDc/view?usp=sharing
+https://drive.google.com/file/d/1ZZj1qaQ_IIOJJk1rn11bc7nWrcaIw1rX/view?usp=sharing
 
 ## Documents
 
